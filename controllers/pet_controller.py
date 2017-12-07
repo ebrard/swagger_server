@@ -5,7 +5,7 @@ from datetime import date, datetime
 from typing import List, Dict
 from six import iteritems
 from ..util import deserialize_date, deserialize_datetime
-
+from swagger_server.database import db_session as ses
 
 def add_pet(body):
     """
@@ -18,7 +18,13 @@ def add_pet(body):
     """
     if connexion.request.is_json:
         body = Pet.from_dict(connexion.request.get_json())
-    return 'do some magic!'
+        ses.add(body)
+        try:
+            ses.commit()
+            return body.to_str()
+        except Exception as e:
+            ses.rollback()
+            return e
 
 
 def delete_pet(petId, api_key=None):
@@ -44,7 +50,12 @@ def find_pets_by_status(status):
 
     :rtype: List[Pet]
     """
-    return 'do some magic!'
+    results = list()
+
+    for _status in status:
+        results += ses.query(Pet).filter_by(_status=_status).all()
+
+    return results
 
 
 def find_pets_by_tags(tags):
@@ -68,7 +79,9 @@ def get_pet_by_id(petId):
 
     :rtype: Pet
     """
-    return 'do some magic!'
+    result = ses.query(Pet).get(petId)
+    print(result.to_str())
+    return result
 
 
 def update_pet(body):
