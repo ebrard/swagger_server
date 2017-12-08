@@ -7,11 +7,17 @@ from .base_model_ import Model
 from datetime import date, datetime
 from typing import List, Dict
 from ..util import deserialize_model
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Table, Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref
 
 Base = declarative_base()
+
+association_table = Table('PetTags', Base.metadata,
+    Column('pet_id', Integer, ForeignKey('Pet._id')),
+    Column('tag_id', Integer, ForeignKey('Tag._id'))
+)
 
 class Pet(Model, Base):
     """
@@ -21,10 +27,13 @@ class Pet(Model, Base):
 
     __tablename__ = 'Pet'
     _id = Column(Integer, primary_key=True)
-    # category_id = Column(Integer, ForeignKey('Category.category_id'))
-    # category = relationship('Category', backref='Pet')
+    _category_id = Column(Integer, ForeignKey('Category._id'))
+    _tag_id = Column(Integer, ForeignKey('Tag._id'))
     _status = Column(String)
     _name = Column(String)
+
+    category = relationship('Category', backref='pet')
+    tag = relationship("Tag", backref="pet", secondary=association_table)
 
 
     def __init__(self, id: int=None, category: Category=None, name: str=None, photo_urls: List[str]=None, tags: List[Tag]=None, status: str=None):
