@@ -5,8 +5,9 @@ from ..util import deserialize_model
 
 T = TypeVar('T')
 
-
 class Model(object):
+
+
     # swaggerTypes: The key is attribute name and the value is attribute type.
     swagger_types = {}
 

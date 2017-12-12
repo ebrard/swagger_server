@@ -3,3 +3,4 @@
 petstore.db
 .idea/
 *.xml
+__main__.py
